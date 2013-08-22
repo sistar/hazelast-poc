@@ -1,0 +1,62 @@
+group = 'hazlecast-poc'
+
+buildscript {
+	// I need build script classpath for foreign plugins
+	repositories {
+		maven {
+			url 'http://nexus.lhotse.ov.otto.de:8080/content/groups/public'
+		}
+	}
+	dependencies {
+		classpath 'com.smokejumperit:gradle-plugins:0.8.2'
+		classpath 'com.github.ben-manes:gradle-versions-plugin:0.3'
+		classpath 'com.eriwen:gradle-cobertura-plugin:1.1.0'
+		classpath "org.pegdown:pegdown:1.2.1"		
+	}
+}
+
+repositories {
+        mavenCentral()
+		maven {
+			url 'http://nexus.lhotse.ov.otto.de:8080/content/groups/public'
+		}
+		maven {
+			url 'http://repo.springsource.org/libs-snapshot'
+		}
+		maven {
+			url 'http://mvnrepository.com/artifact'
+		}
+}
+
+apply plugin: 'eclipse'
+apply plugin: 'findbugs'
+apply plugin: 'maven'
+apply plugin: com.smokejumperit.gradle.DepNamesPlugin
+apply plugin: 'java'
+
+test {
+	 ignoreFailures = true
+}
+
+configurations {
+	compile {
+		transitive = true
+	}
+	all*.exclude group: 'commons-logging', module: 'commons-logging'
+	deployerJars
+	testArtifacts
+}
+
+dependencies {
+	compile slf4jApi, slf4jLog4j12, jclOverSlf4j, hazelcast ,guava
+	testCompile testng, guice, mockitoAll
+	testRuntime(reportng) {
+		exclude group:"org.testng"
+	}
+	testCompile cobertura
+}
+
+sourceCompatibility = 1.7
+targetCompatibility = 1.7
+
+[compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
