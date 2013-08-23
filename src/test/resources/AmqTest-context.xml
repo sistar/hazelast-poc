@@ -1,0 +1,32 @@
+
+<beans
+   xmlns="http://www.springframework.org/schema/beans"  
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="
+     http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd
+     http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <import resource="activemq.xml"/>
+  
+    <camelContext id="camelContext" xmlns="http://camel.apache.org/schema/spring">
+
+        <!-- You can use Spring XML syntax to define the routes here using the <route> element -->
+        <route>
+            <description>Example Camel Route</description>
+            <from uri="activemq:example.A"/>
+            <to uri="activemq:example.B"/>
+        </route>
+    </camelContext>
+
+
+    <bean id="activemq" class="org.apache.activemq.camel.component.ActiveMQComponent" >
+        <property name="connectionFactory">
+          <bean class="org.apache.activemq.ActiveMQConnectionFactory">
+            <property name="brokerURL" value="vm://amq-broker?create=false"/>
+            <property name="userName" value="${activemq.username}"/>
+            <property name="password" value="${activemq.password}"/>
+          </bean>
+        </property>
+    </bean>
+
+</beans>

@@ -48,7 +48,7 @@ configurations {
 }
 
 dependencies {
-	compile slf4jApi, slf4jLog4j12, jclOverSlf4j, hazelcast ,guava
+	compile slf4jApi, slf4jLog4j12, jclOverSlf4j, hazelcast ,guava, activemqAll, camelCore, camelJms, camelSpringTestNG, camelSpring,xbeanSpring
 	testCompile testng, guice, mockitoAll
 	testRuntime(reportng) {
 		exclude group:"org.testng"
