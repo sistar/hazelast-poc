@@ -24,7 +24,7 @@
           - Change the brokerName attribute to something unique
     -->
 
-    <broker xmlns="http://activemq.apache.org/schema/core" brokerName="amq-broker" useJmx="true">
+    <broker xmlns="http://activemq.apache.org/schema/core" brokerName="amq-broker" useJmx="true" persistent="false">
 
         <!--
             Examples of destination-specific policies using destination
@@ -106,10 +106,12 @@
             For more information, see:
 
             http://activemq.apache.org/persistence.html
-        -->
+
         <persistenceAdapter>
             <kahaDB directory="/tmp/dynamic-broker1/kahadb" indexWriteBatchSize="1000" enableIndexWriteAsync="true" enableJournalDiskSyncs="false" />
         </persistenceAdapter>
+        -->
+
 
         <!--
             Configure the following if you wish to use journaled JDBC for message

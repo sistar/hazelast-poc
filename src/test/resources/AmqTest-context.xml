@@ -1,31 +1,40 @@
-
 <beans
-   xmlns="http://www.springframework.org/schema/beans"  
-   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-   xsi:schemaLocation="
+        xmlns="http://www.springframework.org/schema/beans"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="
      http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd
      http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
     <import resource="activemq.xml"/>
-  
+    <bean id="calculateShardBean" class="CalculateShardBean"/>
+
     <camelContext id="camelContext" xmlns="http://camel.apache.org/schema/spring">
 
-        <!-- You can use Spring XML syntax to define the routes here using the <route> element -->
         <route>
-            <description>Example Camel Route</description>
-            <from uri="activemq:example.A"/>
-            <to uri="activemq:example.B"/>
+            <description>Sharding Route</description>
+            <from uri="activemq:incoming"/>
+            <to uri="log:com.mycompany.order?level=DEBUG"/>
+            <dynamicRouter>
+                <method ref="calculateShardBean" method="process"/>
+            </dynamicRouter>
         </route>
+
+        <route>
+            <from uri="activemq:shard_04"/>
+
+            <to uri="mock:result"/>
+        </route>
+
     </camelContext>
 
 
-    <bean id="activemq" class="org.apache.activemq.camel.component.ActiveMQComponent" >
+    <bean id="activemq" class="org.apache.activemq.camel.component.ActiveMQComponent">
         <property name="connectionFactory">
-          <bean class="org.apache.activemq.ActiveMQConnectionFactory">
-            <property name="brokerURL" value="vm://amq-broker?create=false"/>
-            <property name="userName" value="${activemq.username}"/>
-            <property name="password" value="${activemq.password}"/>
-          </bean>
+            <bean class="org.apache.activemq.ActiveMQConnectionFactory">
+                <property name="brokerURL" value="vm://amq-broker?create=false"/>
+                <property name="userName" value="${activemq.username}"/>
+                <property name="password" value="${activemq.password}"/>
+            </bean>
         </property>
     </bean>
 

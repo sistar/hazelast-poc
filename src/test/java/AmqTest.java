@@ -1,76 +1,73 @@
-import com.google.common.base.Stopwatch;
-import com.hazelcast.config.Config;
-import com.hazelcast.core.Hazelcast;
-import com.hazelcast.core.HazelcastInstance;
+import java.security.SecureRandom;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.camel.CamelContext;
 import org.apache.camel.EndpointInject;
 import org.apache.camel.Produce;
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.testng.AbstractCamelTestNGSpringContextTests;
-import org.apache.camel.testng.CamelSpringTestSupport;
-import org.mockito.MockitoAnnotations;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.support.AbstractApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
-import org.testng.annotations.BeforeMethod;
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import java.math.BigInteger;
-import java.security.SecureRandom;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-import static org.testng.Assert.assertEquals;
 @ContextConfiguration
 @DirtiesContext
 public class AmqTest extends AbstractCamelTestNGSpringContextTests {
 
+	@Autowired
+	protected CamelContext camelContext;
 
-    @Autowired
-    protected CamelContext camelContext;
+	@EndpointInject(
+			uri = "mock:result", context = "camelContext")
+	protected MockEndpoint resultEndpoint;
 
-
-    @EndpointInject(uri = "mock:a", context = "camelContext")
-    protected MockEndpoint mockA;
-
-    @EndpointInject(uri = "mock:b", context = "camelContext")
-    protected MockEndpoint mockB;
-
-    @EndpointInject(uri = "mock:c", context = "camelContext2")
-    protected MockEndpoint mockC;
-
-    @Produce(uri = "direct:start", context = "camelContext")
-    protected ProducerTemplate start;
-
-    @Produce(uri = "direct:start2", context = "camelContext2")
-    protected ProducerTemplate start2;
+	@Produce(
+			uri = "activemq:incoming", context = "camelContext")
+	protected ProducerTemplate start;
 
 	private List<Map<Integer, String>> maps = new ArrayList();
 	public static final long POW = (long) Math.pow(10, 6);
 	private SecureRandom random = new SecureRandom();
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-
-
-
-
-	@BeforeMethod
-	public void setUp() throws Exception {
-		MockitoAnnotations.initMocks(this);
-
+	@Test
+    @DirtiesContext
+	public void testShardingFunction() throws Exception {
+		Assert.assertEquals(CalculateShardBean.getShardForBrowserId("TEST"), new Integer(4));
+		Assert.assertEquals(CalculateShardBean.getShardForBrowserId("TESTx"), new Integer(10));
+		Assert.assertEquals(CalculateShardBean.getShardForBrowserId("TESTa"), new Integer(0));
+		Assert.assertEquals(CalculateShardBean.getShardForBrowserId("TESTy"), new Integer(11));
 	}
 
 	@Test
-	public void testInitAmq() {
+    @DirtiesContext
+	public void testThatMatchingMessageIsRoutedToShard() throws InterruptedException {
 
-        start.sendBody("activemq:example.A", "TEST");
-		assertEquals(true, true);
+		resultEndpoint.expectedMessageCount(4);
+		resultEndpoint.setAssertPeriod(100L);
+
+        start.sendBody("TEST");
+		start.sendBody("TEST");
+		start.sendBody("TEST");
+		start.sendBody("TEST");
+		resultEndpoint.assertIsSatisfied();
 	}
 
+	@Test
+	public void testThatNonMatchingMessageIsNotRoutedToShard() throws InterruptedException {
+
+		resultEndpoint.expectedMessageCount(0);
+		resultEndpoint.setAssertPeriod(100L);
+
+		start.sendBody("TEST12");
+
+		resultEndpoint.assertIsSatisfied();
+	}
 }
