@@ -23,7 +23,7 @@ public class CalculateShardBean {
 	public static String getShardUriForBrowserId(final String browserId) {
 		Integer shard = getShardForBrowserId(browserId);
 		String shard_uri = String.format("activemq:shard_%02d", shard);
-		LOG.info("browser_id: {} -> shard_uri: {}", browserId, shard_uri);
+		LOG.debug("browser_id: {} -> shard_uri: {}", browserId, shard_uri);
 		return shard_uri;
 	}
 

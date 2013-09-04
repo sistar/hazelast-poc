@@ -33,9 +33,24 @@ apply plugin: 'findbugs'
 apply plugin: 'maven'
 apply plugin: com.smokejumperit.gradle.DepNamesPlugin
 apply plugin: 'java'
+//apply plugin:'application'
+//mainClassName = "org.gradle.sample.Main"
 
 test {
 	 ignoreFailures = true
+}
+
+task(runSimple, dependsOn: 'classes', type: JavaExec) {
+            main = 'de.sistar.poc.amq.FileToAmq'
+            classpath = sourceSets.main.runtimeClasspath
+            args 'mrhaki'
+            systemProperty 'simple.message', 'Hello '
+}
+
+task(fillAmq, type: JavaExec, dependsOn:classes ){
+    main = 'de.sistar.poc.amq.FileToAmq'
+    classpath = sourceSets.main.runtimeClasspath
+    args 'abc'
 }
 
 configurations {

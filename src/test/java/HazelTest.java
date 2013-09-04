@@ -83,7 +83,17 @@ public class HazelTest {
 		reportElapsedTime(stopwatch,maps);
 	}
 
-	private Map oneHazelInstance(Config cfg) {
+    @Test
+    public void testConcurrentUpdate() throws Exception {
+        Config cfg = new Config();
+        Map map1 = oneHazelInstance(cfg);
+        Map map2 = oneHazelInstance(cfg);
+        //TODO
+
+
+    }
+
+    private Map oneHazelInstance(Config cfg) {
 		HazelcastInstance h1 = Hazelcast.newHazelcastInstance(cfg);
 		return h1.getMap("testmap");
 	}

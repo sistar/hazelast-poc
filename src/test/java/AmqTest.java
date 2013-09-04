@@ -38,7 +38,7 @@ public class AmqTest extends AbstractCamelTestNGSpringContextTests {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	@Test
-    @DirtiesContext
+	@DirtiesContext
 	public void testShardingFunction() throws Exception {
 		Assert.assertEquals(CalculateShardBean.getShardForBrowserId("TEST"), new Integer(4));
 		Assert.assertEquals(CalculateShardBean.getShardForBrowserId("TESTx"), new Integer(10));
@@ -47,13 +47,13 @@ public class AmqTest extends AbstractCamelTestNGSpringContextTests {
 	}
 
 	@Test
-    @DirtiesContext
+	@DirtiesContext
 	public void testThatMatchingMessageIsRoutedToShard() throws InterruptedException {
 
 		resultEndpoint.expectedMessageCount(4);
 		resultEndpoint.setAssertPeriod(100L);
 
-        start.sendBody("TEST");
+		start.sendBody("TEST");
 		start.sendBody("TEST");
 		start.sendBody("TEST");
 		start.sendBody("TEST");
@@ -61,12 +61,26 @@ public class AmqTest extends AbstractCamelTestNGSpringContextTests {
 	}
 
 	@Test
+    @DirtiesContext
 	public void testThatNonMatchingMessageIsNotRoutedToShard() throws InterruptedException {
 
 		resultEndpoint.expectedMessageCount(0);
 		resultEndpoint.setAssertPeriod(100L);
 
 		start.sendBody("TEST12");
+
+		resultEndpoint.assertIsSatisfied();
+	}
+
+	@Test
+    @DirtiesContext
+	public void testThatManyMessagesAreRoutedToShard() throws InterruptedException {
+
+		resultEndpoint.expectedMessageCount(10000);
+		resultEndpoint.setAssertPeriod(100L);
+
+		for (int i = 0; i < 10000; i++)
+			start.sendBody("TEST");
 
 		resultEndpoint.assertIsSatisfied();
 	}
