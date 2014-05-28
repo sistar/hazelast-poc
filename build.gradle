@@ -4,7 +4,7 @@ buildscript {
 	// I need build script classpath for foreign plugins
 	repositories {
 		maven {
-			url 'http://nexus.lhotse.ov.otto.de:8080/content/groups/public'
+			url 'http://nexus.sistar.de:8080/content/groups/public'
 		}
 	}
 	dependencies {
@@ -18,7 +18,7 @@ buildscript {
 repositories {
         mavenCentral()
 		maven {
-			url 'http://nexus.lhotse.ov.otto.de:8080/content/groups/public'
+			url 'http://nexus.sistar.de:8080/content/groups/public'
 		}
 		maven {
 			url 'http://repo.springsource.org/libs-snapshot'
